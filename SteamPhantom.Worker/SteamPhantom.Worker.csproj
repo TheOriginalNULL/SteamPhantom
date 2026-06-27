@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <RootNamespace>SteamPhantom.Worker</RootNamespace>
+    <AssemblyName>SteamPhantom.Worker</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Steamworks.NET" Version="20.2.0" />
+  </ItemGroup>
+
+  <!-- When the main app publishes self-contained single-file, the worker comes
+       along and ends up with a sprawl of System.*.dll runtime files alongside
+       it. PublishSingleFile collapses that into one exe. Compression keeps
+       it slim. Native libs (steam_api64.dll) stay external so they can be
+       loaded by LoadLibrary at startup. -->
+  <PropertyGroup>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- steam_api64.dll is shipped with every Steamworks game and freely
+         redistributable as part of the Steamworks SDK. We bundle it here so
+         the worker has the native lib next to it without manual setup. -->
+    <None Include="steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
