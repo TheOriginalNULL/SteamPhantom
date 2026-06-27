@@ -1,0 +1,86 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SteamPhantom</RootNamespace>
+
+    <!-- Version + display info (stamped into the exe metadata) -->
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Product>SteamPhantom</Product>
+    <Company>~NULL</Company>
+    <Copyright>© ~NULL · discord.gg/3x3</Copyright>
+
+    <!-- Used by Windows Explorer + the .exe metadata. Optional: if icon.ico
+         isn't present the build still succeeds, it just falls back to the
+         default Windows icon for the exe file itself (the PNG-based icon
+         still shows everywhere inside the app). -->
+    <ApplicationIcon Condition="Exists('Resources\icon.ico')">Resources\icon.ico</ApplicationIcon>
+
+    <!-- Note: single-file / self-contained / RID are passed on the `dotnet publish`
+         command line (see publish.cmd) — keeping them out of the csproj so they
+         don't affect Debug builds. -->
+  </PropertyGroup>
+
+  <!-- PNG embedded as a WPF resource so the runtime can access it via pack URI
+       regardless of working directory or single-file publishing. -->
+  <ItemGroup Condition="Exists('Resources\icon.png')">
+    <Resource Include="Resources\icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="ValveKeyValue" Version="0.13.1.398" />
+    <PackageReference Include="SteamKit2" Version="3.0.0" />
+    <PackageReference Include="H.NotifyIcon.Wpf" Version="2.1.3" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Build worker before us; don't reference its assemblies. -->
+    <ProjectReference Include="..\SteamPhantom.Worker\SteamPhantom.Worker.csproj" ReferenceOutputAssembly="false" Private="false" SkipGetTargetFrameworkProperties="true" />
+  </ItemGroup>
+
+  <!-- When publish passes a RID, MSBuild puts the worker under bin\<cfg>\net8.0\<rid>\;
+       a plain build (no RID) puts it under bin\<cfg>\net8.0\. The target tries the
+       RID-specific path first, then falls back to the plain path. -->
+  <PropertyGroup>
+    <_WorkerOutDirRid>..\SteamPhantom.Worker\bin\$(Configuration)\net8.0\$(RuntimeIdentifier)\</_WorkerOutDirRid>
+    <_WorkerOutDirPlain>..\SteamPhantom.Worker\bin\$(Configuration)\net8.0\</_WorkerOutDirPlain>
+    <_WorkerOutDir Condition="'$(RuntimeIdentifier)' != '' AND Exists('$(_WorkerOutDirRid)SteamPhantom.Worker.dll')">$(_WorkerOutDirRid)</_WorkerOutDir>
+    <_WorkerOutDir Condition="'$(_WorkerOutDir)' == ''">$(_WorkerOutDirPlain)</_WorkerOutDir>
+  </PropertyGroup>
+
+  <Target Name="CopyWorkerOutputs" AfterTargets="Build">
+    <ItemGroup>
+      <_WorkerFile Include="$(_WorkerOutDir)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_WorkerFile)" DestinationFiles="@(_WorkerFile->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Publish doesn't run our AfterBuild copy into the publish folder, so do
+       it separately. Prefer the worker's own publish output (single-file exe)
+       if it exists; fall back to the build output. -->
+  <PropertyGroup>
+    <_WorkerPublishDirRid>..\SteamPhantom.Worker\bin\$(Configuration)\net8.0\$(RuntimeIdentifier)\publish\</_WorkerPublishDirRid>
+    <_WorkerPublishDir Condition="'$(RuntimeIdentifier)' != '' AND Exists('$(_WorkerPublishDirRid)SteamPhantom.Worker.exe')">$(_WorkerPublishDirRid)</_WorkerPublishDir>
+    <_WorkerPublishDir Condition="'$(_WorkerPublishDir)' == ''">$(_WorkerOutDir)</_WorkerPublishDir>
+    <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <Target Name="CopyWorkerToPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <_WorkerPublishFile Include="$(_WorkerPublishDir)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_WorkerPublishFile)" DestinationFiles="@(_WorkerPublishFile->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
