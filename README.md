@@ -451,11 +451,6 @@ reports, feature requests, or just to say hi.
 ---
 
 ## License
-
-> Pick one and drop it here. MIT is the common choice for a project like
-> this; GPL-3.0 if you want copyleft. Without a license file the default is
-> "all rights reserved" which probably isn't what you want for an OSS app.
-
 ```
 Copyright © ~NULL · discord.gg/3x3
 ```
