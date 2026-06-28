@@ -55,7 +55,7 @@ search, sort, and multi-select.
 
 | Achievements | Stats | Settings |
 |---|---|---|
-| ![ach](Screenshots/achievements.png) | ![stats](docs/screenshots/stats.png) | ![set](Screenshots/SettingsTab.png) |
+| ![ach](Screenshots/AchievementsTab.png) | ![stats](Screenshots/StatsTab.png) | ![set](Screenshots/SettingsTab.png) |
 
 ---
 
