@@ -51,11 +51,11 @@ search, sort, and multi-select.
 
 | Library | Idle | Cards |
 |---------|------|-------|
-| ![library](docs/screenshots/library.png) | ![idle](docs/screenshots/idle.png) | ![cards](docs/screenshots/cards.png) |
+| ![library](Screenshots/LibraryTab.png) | ![idle](Screenshots/IdleTab.png) | ![cards](Screenshots/CardsTab.png) |
 
 | Achievements | Stats | Settings |
 |---|---|---|
-| ![ach](docs/screenshots/achievements.png) | ![stats](docs/screenshots/stats.png) | ![set](docs/screenshots/settings.png) |
+| ![ach](Screenshots/achievements.png) | ![stats](docs/screenshots/stats.png) | ![set](Screenshots/SettingsTab.png) |
 
 ---
 
